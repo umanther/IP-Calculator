@@ -187,8 +187,8 @@ for button in app_main.getRadioButtonWidget(RB_DISPLAYAS):
     button.configure(font=15)
 
 row = row + 1
-app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_COMMASEPERATED, row, 0)
-app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_SEPERATELINES, row, 1)
+app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_SEPERATELINES, row, 0)
+app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_COMMASEPERATED, row, 1)
 app_main.setRadioButtonChangeFunction(RB_DISPLAYUSING, update_ip_list_control)
 for button in app_main.getRadioButtonWidget(RB_DISPLAYUSING):
     button.configure(font=15)
