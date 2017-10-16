@@ -22,6 +22,9 @@ RB_DU_SEPERATELINES = "Separate Lines"
 # TextAreas
 TA_WORKING = "Working"
 TA_IPLIST = "IP List"
+# Messages
+MSG_IPERRORHDR = "Validation Error"
+MSG_IPERROR = "Error in IP/CIDR: "
 
 
 # IP Address validator.  Returns an IPAddress or False
@@ -96,6 +99,7 @@ def validate_ip_list(iplist):
         if test is not False:
             processed_list.add(test)
         else:
+            app_main.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
             return False
 
     return processed_list
@@ -161,6 +165,7 @@ def buttonpress(name):
 
 
 # gui builder
+# - Main GUI
 app_main = gui("IP Calculator")
 app_main.setResizable(False)
 
