@@ -7,6 +7,11 @@ import re
 IPOutput = IPSet()
 
 # constants
+# App Windows
+GUI_MAIN = "IP Calculator"
+# Label Frames
+LF_WORKAREA = "Work Area"
+LF_IPLIST = "IP List"
 # Buttons
 BT_ADD = "Add to List ⇩"
 BT_REMOVE = "Remove from list ⇪"
@@ -99,7 +104,7 @@ def validate_ip_list(iplist):
         if test is not False:
             processed_list.add(test)
         else:
-            app_main.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
+            app.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
             return False
 
     return processed_list
@@ -127,10 +132,10 @@ def format_range_list(list):
 
 # Updates the "IP List" TextBox
 def update_ip_list():
-    name = app_main.getRadioButton(RB_DISPLAYAS)
-    format = app_main.getRadioButton(RB_DISPLAYUSING)
+    name = app.getRadioButton(RB_DISPLAYAS)
+    format = app.getRadioButton(RB_DISPLAYUSING)
 
-    app_main.clearTextArea(TA_IPLIST)
+    app.clearTextArea(TA_IPLIST)
     if name == RB_DA_BYCIDR:
         formatted_list = format_cidr_list(IPOutput.iter_cidrs())
     else:
@@ -139,7 +144,7 @@ def update_ip_list():
     if format == RB_DU_SEPERATELINES:
         formatted_list = formatted_list.replace(",", "\n")
 
-    app_main.setTextArea(TA_IPLIST, formatted_list)
+    app.setTextArea(TA_IPLIST, formatted_list)
 
 
 # Wrapper for control to ignore 'name'
@@ -152,9 +157,9 @@ def buttonpress(name):
     global IPOutput
     try:
         if name == BT_ADD:
-            IPOutput = IPOutput.union(validate_ip_list(app_main.getTextArea(TA_WORKING)))
+            IPOutput = IPOutput.union(validate_ip_list(app.getTextArea(TA_WORKING)))
         elif name == BT_REMOVE:
-            IPOutput -= validate_ip_list(app_main.getTextArea(TA_WORKING))
+            IPOutput -= validate_ip_list(app.getTextArea(TA_WORKING))
         elif name == BT_CLEAR:
             IPOutput.clear()
     except:
@@ -166,38 +171,36 @@ def buttonpress(name):
 
 # gui builder
 # - Main GUI
-app_main = gui("IP Calculator")
-app_main.setResizable(False)
+with gui(GUI_MAIN) as app:
+    app.setResizable(False)
 
-app_main.setFont(20)
-app_main.setButtonFont(15)
+    app.setFont(20)
+    app.setButtonFont(15)
 
-app_main.startLabelFrame("Work Area", colspan=2)
-app_main.addScrolledTextArea(TA_WORKING)
-app_main.getTextAreaWidget(TA_WORKING).config(font=12)
-app_main.stopLabelFrame()
+    with app.labelFrame(LF_WORKAREA, colspan=2):
+        app.addScrolledTextArea(TA_WORKING)
+        app.getTextAreaWidget(TA_WORKING).config(font=12)
 
-app_main.addButtons([BT_ADD, BT_REMOVE, BT_CLEAR], buttonpress, colspan=2)
+    app.addButtons([BT_ADD, BT_REMOVE, BT_CLEAR], buttonpress, colspan=2)
 
-app_main.startLabelFrame("IP List", colspan=2)
-app_main.addScrolledTextArea(TA_IPLIST)
-app_main.getTextAreaWidget(TA_IPLIST).config(font=12)
-app_main.stopLabelFrame()
+    with app.labelFrame(LF_IPLIST, colspan=2):
+        app.addScrolledTextArea(TA_IPLIST)
+        app.getTextAreaWidget(TA_IPLIST).config(font=12)
 
-row = app_main.getRow()
-app_main.addRadioButton(RB_DISPLAYAS, RB_DA_BYCIDR, row, 0)
-app_main.addRadioButton(RB_DISPLAYAS, RB_DA_BYRANGE, row, 1)
-app_main.setRadioButtonChangeFunction(RB_DISPLAYAS, update_ip_list_control)
-for button in app_main.getRadioButtonWidget(RB_DISPLAYAS):
-    button.configure(font=15)
+    row = app.getRow()
+    app.addRadioButton(RB_DISPLAYAS, RB_DA_BYCIDR, row, 0)
+    app.addRadioButton(RB_DISPLAYAS, RB_DA_BYRANGE, row, 1)
+    app.setRadioButtonChangeFunction(RB_DISPLAYAS, update_ip_list_control)
+    # for button in app.getRadioButtonWidget(RB_DISPLAYAS):
+        # button.setFont(size="15")
+        # button.config(font="15")
 
-row = row + 1
-app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_SEPERATELINES, row, 0)
-app_main.addRadioButton(RB_DISPLAYUSING, RB_DU_COMMASEPERATED, row, 1)
-app_main.setRadioButtonChangeFunction(RB_DISPLAYUSING, update_ip_list_control)
-for button in app_main.getRadioButtonWidget(RB_DISPLAYUSING):
-    button.configure(font=15)
+    row = row + 1
+    app.addRadioButton(RB_DISPLAYUSING, RB_DU_SEPERATELINES, row, 0)
+    app.addRadioButton(RB_DISPLAYUSING, RB_DU_COMMASEPERATED, row, 1)
+    app.setRadioButtonChangeFunction(RB_DISPLAYUSING, update_ip_list_control)
+    # for button in app.getRadioButton(RB_DISPLAYUSING):
+        # button.setFont(siz="15")
+        # button.config(font="15")
 
-app_main.setTextAreaWidths([TA_WORKING, TA_IPLIST], 50)
-
-app_main.go()
+    app.setTextAreaWidths([TA_WORKING, TA_IPLIST], 50)
