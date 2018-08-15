@@ -85,9 +85,9 @@ def validate_ip_cidr(ipcidr):
 
 # IP Address List validator.  Returns an IPSet or False
 def validate_ip_list(iplist):
-    iplist = re.sub(ur"\s*-\s*", "-", iplist)  # Remove whitespace aground '-'
-    iplist = re.sub(ur"\s", ",", iplist)  # Replace all whitespace with ','
-    iplist = re.sub(ur",{2,}", ",", iplist)  # Remove repeated ','s
+    iplist = re.sub(u"\s*-\s*", "-", iplist)  # Remove whitespace aground '-'
+    iplist = re.sub(u"\s", ",", iplist)  # Replace all whitespace with ','
+    iplist = re.sub(u",{2,}", ",", iplist)  # Remove repeated ','s
 
     processed_list = IPSet()
 
@@ -188,19 +188,20 @@ with gui(GUI_MAIN) as app:
         app.getTextAreaWidget(TA_IPLIST).config(font=12)
 
     row = app.getRow()
-    app.addRadioButton(RB_DISPLAYAS, RB_DA_BYCIDR, row, 0)
-    app.addRadioButton(RB_DISPLAYAS, RB_DA_BYRANGE, row, 1)
+    app.addRadioButton(title=RB_DISPLAYAS, name=RB_DA_BYCIDR, row=row, column=0)
+    app.addRadioButton(title=RB_DISPLAYAS, name=RB_DA_BYRANGE, row=row, column=1)
+
     app.setRadioButtonChangeFunction(RB_DISPLAYAS, update_ip_list_control)
     # for button in app.getRadioButtonWidget(RB_DISPLAYAS):
-        # button.setFont(size="15")
-        # button.config(font="15")
+    # button.setFont(size="15")
+    # button.config(font="15")
 
     row = row + 1
-    app.addRadioButton(RB_DISPLAYUSING, RB_DU_SEPERATELINES, row, 0)
-    app.addRadioButton(RB_DISPLAYUSING, RB_DU_COMMASEPERATED, row, 1)
+    app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_SEPERATELINES, row=row, column=0)
+    app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_COMMASEPERATED, row=row, column=1)
     app.setRadioButtonChangeFunction(RB_DISPLAYUSING, update_ip_list_control)
     # for button in app.getRadioButton(RB_DISPLAYUSING):
-        # button.setFont(siz="15")
-        # button.config(font="15")
+    # button.setFont(siz="15")
+    # button.config(font="15")
 
     app.setTextAreaWidths([TA_WORKING, TA_IPLIST], 50)
