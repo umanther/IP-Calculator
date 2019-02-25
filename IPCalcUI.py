@@ -8,7 +8,7 @@ IPOutput = IPSet()
 
 # constants
 # App Windows
-GUI_MAIN = "IP Calculator"
+GUI_MAIN = "IPv4 Calculator"
 # Label Frames
 LF_WORKAREA = "Work Area"
 LF_IPLIST = "IP List"
