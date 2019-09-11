@@ -1,40 +1,41 @@
 # coding=UTF-8
+import re
+
 from appJar import gui
 from netaddr import *
-import re
 
 # globals
 IPOutput = IPSet()
 
 # constants
 # App Windows
-GUI_MAIN = "IPv4 Calculator"
+GUI_MAIN = 'IPv4 Calculator'
 # Label Frames
-LF_WORKAREA = "Work Area"
-LF_IPLIST = "IP List"
+LF_WORKAREA = 'Work Area'
+LF_IPLIST = 'IP List'
 # Buttons
-BT_ADD = "Add to List ⇩"
-BT_REMOVE = "Remove from list ⇪"
-BT_CLEAR = "Clear List X"
+BT_ADD = 'Add to List \u21E9'
+BT_REMOVE = 'Remove from list \u21EA'
+BT_CLEAR = 'Clear List X'
 # Radio Buttons
-RB_DISPLAYAS = "DisplayAs"
-RB_DA_BYCIDR = "By CIDR"
-RB_DA_BYRANGE = "By Range"
+RB_DISPLAYAS = 'DisplayAs'
+RB_DA_BYCIDR = 'By CIDR'
+RB_DA_BYRANGE = 'By Range'
 
-RB_DISPLAYUSING = "DisplayUsing"
-RB_DU_COMMASEPERATED = "Comma Separated"
-RB_DU_SEPERATELINES = "Separate Lines"
+RB_DISPLAYUSING = 'DisplayUsing'
+RB_DU_COMMASEPERATED = 'Comma Separated'
+RB_DU_SEPERATELINES = 'Separate Lines'
 # TextAreas
-TA_WORKING = "Working"
-TA_IPLIST = "IP List"
+TA_WORKING = 'Working'
+TA_IPLIST = 'IP List'
 # Messages
-MSG_IPERRORHDR = "Validation Error"
-MSG_IPERROR = "Error in IP/CIDR: "
+MSG_IPERRORHDR = 'Validation Error'
+MSG_IPERROR = 'Error in IP/CIDR: '
 
 
 # IP Address validator.  Returns an IPAddress or False
 def validate_ip(ip):
-    number = ip.split(".")
+    number = ip.split('.')
 
     if len(number) != 4:
         return False
@@ -50,12 +51,12 @@ def validate_ip(ip):
 
 
 # IP Address Range validator.  Returns an IPRange, an IPAddress or False
-def validate_ip_range(iprange):
-    if '-' not in iprange:
+def validate_ip_range(ip_range):
+    if '-' not in ip_range:
         return False
 
-    start_ip = validate_ip(iprange.split('-')[0])
-    end_ip = validate_ip(iprange.split('-')[1])
+    start_ip = validate_ip(ip_range.split('-')[0])
+    end_ip = validate_ip(ip_range.split('-')[1])
 
     if start_ip is False or end_ip is False or start_ip > end_ip:
         return False
@@ -84,14 +85,15 @@ def validate_ip_cidr(ipcidr):
 
 
 # IP Address List validator.  Returns an IPSet or False
-def validate_ip_list(iplist):
-    iplist = re.sub(u"\s*-\s*", "-", iplist)  # Remove whitespace aground '-'
-    iplist = re.sub(u"\s", ",", iplist)  # Replace all whitespace with ','
-    iplist = re.sub(u",{2,}", ",", iplist)  # Remove repeated ','s
+def validate_ip_list(ip_list):
+    ip_list = re.sub(r'to', '-', ip_list)  # Replace instances of 'to' with a '-'
+    ip_list = re.sub(r'\s*-\s*', '-', ip_list)  # Remove whitespace aground '-'
+    ip_list = re.sub(r'\s', ',', ip_list)  # Replace all whitespace with ','
+    ip_list = re.sub(r',{2,}', ',', ip_list)  # Remove repeated ','s
 
     processed_list = IPSet()
 
-    for item in iplist.split(','):
+    for item in ip_list.split(','):
         if item == '':
             continue
         elif '/' in item:
@@ -111,19 +113,19 @@ def validate_ip_list(iplist):
 
 
 # Formats a list of CIDR Addressees, removing "/32"
-def format_cidr_list(list):
+def format_cidr_list(cidr_list):
     formattedList = []
-    for item in list:
-        formattedList.append(str(item).split("/32")[0])
+    for item in cidr_list:
+        formattedList.append(str(item).split('/32')[0])
 
     return ','.join(formattedList)
 
 
-def format_range_list(list):
+def format_range_list(range_list):
     formatted_list = []
-    for item in list:
-        if item._start == item._end:
-            formatted_list.append(str(item._start))
+    for item in range_list:
+        if item.first == item.last:
+            formatted_list.append(str(IPAddress(item.first)))
         else:
             formatted_list.append(str(item))
 
@@ -133,7 +135,7 @@ def format_range_list(list):
 # Updates the "IP List" TextBox
 def update_ip_list():
     name = app.getRadioButton(RB_DISPLAYAS)
-    format = app.getRadioButton(RB_DISPLAYUSING)
+    display_format = app.getRadioButton(RB_DISPLAYUSING)
 
     app.clearTextArea(TA_IPLIST)
     if name == RB_DA_BYCIDR:
@@ -141,8 +143,8 @@ def update_ip_list():
     else:
         formatted_list = format_range_list(IPOutput.iter_ipranges())
 
-    if format == RB_DU_SEPERATELINES:
-        formatted_list = formatted_list.replace(",", "\n")
+    if display_format == RB_DU_SEPERATELINES:
+        formatted_list = formatted_list.replace(',', '\n')
 
     app.setTextArea(TA_IPLIST, formatted_list)
 
