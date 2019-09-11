@@ -86,10 +86,12 @@ def validate_ip_cidr(ipcidr):
 
 # IP Address List validator.  Returns an IPSet or False
 def validate_ip_list(ip_list):
-    ip_list = re.sub(r'to', '-', ip_list)  # Replace instances of 'to' with a '-'
+    ip_list = re.sub(r'\.\.\.', '-', ip_list)  # Replace triple dots (...) with a '-'
+    ip_list = re.sub('\u2026', '-', ip_list)  # Replace an ellipsis (…) with a '-'
+    ip_list = re.sub('to', '-', ip_list)  # Replace instances of 'to' with a '-'
     ip_list = re.sub(r'\s*-\s*', '-', ip_list)  # Remove whitespace aground '-'
     ip_list = re.sub(r'\s', ',', ip_list)  # Replace all whitespace with ','
-    ip_list = re.sub(r',{2,}', ',', ip_list)  # Remove repeated ','s
+    ip_list = re.sub(',{2,}', ',', ip_list)  # Remove repeated ','s
 
     processed_list = IPSet()
 
