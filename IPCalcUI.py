@@ -93,7 +93,7 @@ def validate_ip_list(ip_list):
     ip_list = re.sub(r'\s', ',', ip_list)  # Replace all whitespace with ','
     ip_list = re.sub(',{2,}', ',', ip_list)  # Remove repeated ','s
 
-    processed_list = IPSet()
+    processed_list = []
 
     for item in ip_list.split(','):
         if item == '':
@@ -106,12 +106,12 @@ def validate_ip_list(ip_list):
             test = validate_ip(item)
 
         if test is not False:
-            processed_list.add(test)
+            processed_list.append(test)
         else:
             app.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
             return False
 
-    return processed_list
+    return IPSet([cidr for ip in processed_list for cidr in ip.cidrs()])
 
 
 # Formats a list of CIDR Addressees, removing "/32"
