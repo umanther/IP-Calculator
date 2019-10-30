@@ -21,6 +21,7 @@ BT_CLEAR = 'Clear List X'
 RB_DISPLAYAS = 'DisplayAs'
 RB_DA_BYCIDR = 'By CIDR'
 RB_DA_BYRANGE = 'By Range'
+RB_DA_MIXED = 'Mixed'
 
 RB_DISPLAYUSING = 'DisplayUsing'
 RB_DU_COMMASEPERATED = 'Comma Separated'
@@ -42,7 +43,7 @@ def validate_ip(ip):
 
     try:
         for byte in number:
-            if int(byte) < 0 or int(byte) > 255:
+            if not (0 <= int(byte) <= 255):
                 return False
     except:
         return False
@@ -55,10 +56,9 @@ def validate_ip_range(ip_range):
     if '-' not in ip_range:
         return False
 
-    start_ip = validate_ip(ip_range.split('-')[0])
-    end_ip = validate_ip(ip_range.split('-')[1])
+    start_ip, end_ip = [validate_ip(ip) for ip in ip_range.split('-')]
 
-    if start_ip is False or end_ip is False or start_ip > end_ip:
+    if not start_ip or not end_ip or start_ip > end_ip:
         return False
 
     if start_ip == end_ip:
@@ -72,10 +72,10 @@ def validate_ip_cidr(ipcidr):
     if '/' not in ipcidr:
         return False
 
-    ip = ipcidr.split('/')[0]
-    cidr = int(ipcidr.split('/')[1])
+    ip, cidr = ipcidr.split('/')
+    cidr = int(cidr)
 
-    if validate_ip(ip) is False or cidr > 32 or cidr < 0:
+    if not (0 <= cidr <= 32) or not validate_ip(ip):
         return False
 
     if cidr == 32:
@@ -105,8 +105,13 @@ def validate_ip_list(ip_list):
         else:
             test = validate_ip(item)
 
-        if test is not False:
-            processed_list.append(test)
+        if test:
+            if isinstance(test, IPRange):
+                processed_list.append(test)
+            if isinstance(test, IPAddress):
+                processed_list.append(IPRange(str(test), str(test)))
+            if isinstance(test, IPNetwork):
+                processed_list.append(IPRange(test.first, test.last))
         else:
             app.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
             return False
@@ -134,6 +139,12 @@ def format_range_list(range_list):
     return ','.join(formatted_list)
 
 
+def format_mixed_list(range_list):
+    formatted_list = []
+    # TODO: Write Mixed format function
+    return ','.join(formatted_list)
+
+
 # Updates the "IP List" TextBox
 def update_ip_list():
     name = app.getRadioButton(RB_DISPLAYAS)
@@ -142,18 +153,17 @@ def update_ip_list():
     app.clearTextArea(TA_IPLIST)
     if name == RB_DA_BYCIDR:
         formatted_list = format_cidr_list(IPOutput.iter_cidrs())
-    else:
+    elif name == RB_DA_BYRANGE:
         formatted_list = format_range_list(IPOutput.iter_ipranges())
+    elif name == RB_DA_MIXED:
+        formatted_list = format_mixed_list(IPOutput.iter_ipranges())
+    else:
+        raise RuntimeError('Invalid value for DisplayAs Radio Button')
 
     if display_format == RB_DU_SEPERATELINES:
         formatted_list = formatted_list.replace(',', '\n')
 
     app.setTextArea(TA_IPLIST, formatted_list)
-
-
-# Wrapper for control to ignore 'name'
-def update_ip_list_control(name):
-    update_ip_list()
 
 
 # Handler Events
@@ -181,21 +191,22 @@ with gui(GUI_MAIN) as app:
     app.setFont(20)
     app.setButtonFont(15)
 
-    with app.labelFrame(LF_WORKAREA, colspan=2):
+    with app.labelFrame(LF_WORKAREA, colspan=3, stretch='column', sticky='news'):
         app.addScrolledTextArea(TA_WORKING)
         app.getTextAreaWidget(TA_WORKING).config(font=12)
 
-    app.addButtons([BT_ADD, BT_REMOVE, BT_CLEAR], buttonpress, colspan=2)
+    app.addButtons([BT_ADD, BT_REMOVE, BT_CLEAR], buttonpress, colspan=3)
 
-    with app.labelFrame(LF_IPLIST, colspan=2):
+    with app.labelFrame(LF_IPLIST, colspan=3, stretch='column', sticky='news'):
         app.addScrolledTextArea(TA_IPLIST)
         app.getTextAreaWidget(TA_IPLIST).config(font=12)
 
     row = app.getRow()
     app.addRadioButton(title=RB_DISPLAYAS, name=RB_DA_BYCIDR, row=row, column=0)
     app.addRadioButton(title=RB_DISPLAYAS, name=RB_DA_BYRANGE, row=row, column=1)
+    app.addRadioButton(title=RB_DISPLAYAS, name=RB_DA_MIXED, row=row, column=2)
 
-    app.setRadioButtonChangeFunction(RB_DISPLAYAS, update_ip_list_control)
+    app.setRadioButtonChangeFunction(RB_DISPLAYAS, lambda name: update_ip_list())
     # for button in app.getRadioButtonWidget(RB_DISPLAYAS):
     # button.setFont(size="15")
     # button.config(font="15")
@@ -203,7 +214,7 @@ with gui(GUI_MAIN) as app:
     row = row + 1
     app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_SEPERATELINES, row=row, column=0)
     app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_COMMASEPERATED, row=row, column=1)
-    app.setRadioButtonChangeFunction(RB_DISPLAYUSING, update_ip_list_control)
+    app.setRadioButtonChangeFunction(RB_DISPLAYUSING, lambda name: update_ip_list())
     # for button in app.getRadioButton(RB_DISPLAYUSING):
     # button.setFont(siz="15")
     # button.config(font="15")
