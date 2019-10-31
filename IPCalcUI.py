@@ -36,17 +36,20 @@ MSG_IPERROR = 'Error in IP/CIDR: '
 
 # IP Address validator.  Returns an IPAddress or False
 def validate_ip(ip):
-    number = ip.split('.')
+    try:
+        number = ip.split('.')
+    except ValueError:
+        return None
 
     if len(number) != 4:
-        return False
+        return None
 
     try:
         for byte in number:
             if not (0 <= int(byte) <= 255):
                 return False
-    except:
-        return False
+    except ValueError:
+        return None
 
     return IPAddress('.'.join(number))
 
@@ -54,12 +57,15 @@ def validate_ip(ip):
 # IP Address Range validator.  Returns an IPRange, an IPAddress or False
 def validate_ip_range(ip_range):
     if '-' not in ip_range:
-        return False
+        return None
 
-    start_ip, end_ip = [validate_ip(ip) for ip in ip_range.split('-')]
+    try:
+        start_ip, end_ip = [validate_ip(ip) for ip in ip_range.split('-')]
+    except ValueError:
+        return None
 
     if not start_ip or not end_ip or start_ip > end_ip:
-        return False
+        return None
 
     if start_ip == end_ip:
         return start_ip
@@ -70,13 +76,16 @@ def validate_ip_range(ip_range):
 # IP Address CIDR validator.  Returns an IPAddress, IPNetwork or False
 def validate_ip_cidr(ipcidr):
     if '/' not in ipcidr:
-        return False
+        return None
 
-    ip, cidr = ipcidr.split('/')
-    cidr = int(cidr)
+    try:
+        ip, cidr = ipcidr.split('/')
+        cidr = int(cidr)
+    except ValueError:
+        return None
 
     if not (0 <= cidr <= 32) or not validate_ip(ip):
-        return False
+        return None
 
     if cidr == 32:
         return IPAddress(ip)
@@ -99,19 +108,19 @@ def validate_ip_list(ip_list):
         if item == '':
             continue
         elif '/' in item:
-            test = validate_ip_cidr(item)
+            validated = validate_ip_cidr(item)
         elif '-' in item:
-            test = validate_ip_range(item)
+            validated = validate_ip_range(item)
         else:
-            test = validate_ip(item)
+            validated = validate_ip(item)
 
-        if test:
-            if isinstance(test, IPRange):
-                processed_list.append(test)
-            if isinstance(test, IPAddress):
-                processed_list.append(IPRange(str(test), str(test)))
-            if isinstance(test, IPNetwork):
-                processed_list.append(IPRange(test.first, test.last))
+        if validated:
+            if isinstance(validated, IPRange):
+                processed_list.append(validated)
+            if isinstance(validated, IPAddress):
+                processed_list.append(IPRange(str(validated), str(validated)))
+            if isinstance(validated, IPNetwork):
+                processed_list.append(IPRange(validated.first, validated.last))
         else:
             app.errorBox(MSG_IPERRORHDR, MSG_IPERROR + item)
             return False
