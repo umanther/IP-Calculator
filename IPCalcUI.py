@@ -141,7 +141,12 @@ def format_range_list(range_list):
 
 def format_mixed_list(range_list):
     formatted_list = []
-    # TODO: Write Mixed format function
+    for item in range_list:
+        if len(item.cidrs()) == 1:
+            formatted_list.append(str(item.cidrs()[0]).split('/32')[0])
+        else:
+            formatted_list.append(str(item))
+
     return ','.join(formatted_list)
 
 
