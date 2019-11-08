@@ -97,6 +97,7 @@ def validate_ip_cidr(ipcidr):
 def validate_ip_list(ip_list):
     ip_list = re.sub(r'\.\.\.', '-', ip_list)  # Replace triple dots (...) with a '-'
     ip_list = re.sub('\u2026', '-', ip_list)  # Replace an ellipsis (…) with a '-'
+    ip_list = re.sub('\u2013', '-', ip_list)  # Replace a unicode dash (–) with a '-'
     ip_list = re.sub('to', '-', ip_list)  # Replace instances of 'to' with a '-'
     ip_list = re.sub(r'\s*-\s*', '-', ip_list)  # Remove whitespace aground '-'
     ip_list = re.sub(r'\s', ',', ip_list)  # Replace all whitespace with ','
