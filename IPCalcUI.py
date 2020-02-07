@@ -84,7 +84,7 @@ def validate_ip_cidr(ipcidr):
     except ValueError:
         return None
 
-    if not (0 <= cidr <= 32) or not validate_ip(ip):
+    if not (0 <= cidr <= 32) or validate_ip(ip) is None:
         return None
 
     if cidr == 32:
