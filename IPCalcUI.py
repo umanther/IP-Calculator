@@ -64,7 +64,7 @@ def validate_ip_range(ip_range):
     except ValueError:
         return None
 
-    if not start_ip or not end_ip or start_ip > end_ip:
+    if not isinstance(start_ip, IPAddress) or not isinstance(end_ip, IPAddress) or start_ip > end_ip:
         return None
 
     if start_ip == end_ip:
@@ -115,7 +115,7 @@ def validate_ip_list(ip_list):
         else:
             validated = validate_ip(item)
 
-        if validated:
+        if not validated is None:
             if isinstance(validated, IPRange):
                 processed_list.append(validated)
             if isinstance(validated, IPAddress):
