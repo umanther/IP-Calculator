@@ -205,6 +205,7 @@ with gui(GUI_MAIN) as app:
 
     app.setFont(20)
     app.setButtonFont(15)
+    app.setBg('grey')
 
     with app.labelFrame(LF_WORKAREA, colspan=3, stretch='column', sticky='news'):
         app.addScrolledTextArea(TA_WORKING)
@@ -223,15 +224,11 @@ with gui(GUI_MAIN) as app:
 
     app.setRadioButtonChangeFunction(RB_DISPLAYAS, lambda name: update_ip_list())
     # for button in app.getRadioButtonWidget(RB_DISPLAYAS):
-    # button.setFont(size="15")
-    # button.config(font="15")
 
     row = row + 1
     app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_SEPERATELINES, row=row, column=0)
     app.addRadioButton(title=RB_DISPLAYUSING, name=RB_DU_COMMASEPERATED, row=row, column=1)
     app.setRadioButtonChangeFunction(RB_DISPLAYUSING, lambda name: update_ip_list())
     # for button in app.getRadioButton(RB_DISPLAYUSING):
-    # button.setFont(siz="15")
-    # button.config(font="15")
 
     app.setTextAreaWidths([TA_WORKING, TA_IPLIST], 50)
