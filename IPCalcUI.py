@@ -67,10 +67,7 @@ def validate_ip_range(ip_range):
     if not isinstance(start_ip, IPAddress) or not isinstance(end_ip, IPAddress) or start_ip > end_ip:
         return None
 
-    if start_ip == end_ip:
-        return start_ip
-
-    return IPRange(start_ip, end_ip)
+    return start_ip if start_ip == end_ip else IPRange(start_ip, end_ip)
 
 
 # IP Address CIDR validator.  Returns an IPAddress, IPNetwork or False
@@ -87,10 +84,7 @@ def validate_ip_cidr(ipcidr):
     if not (0 <= cidr <= 32) or validate_ip(ip) is None:
         return None
 
-    if cidr == 32:
-        return IPAddress(ip)
-    else:
-        return IPNetwork(ipcidr)
+    return IPAddress(ip) if cidr == 32 else IPNetwork(ipcidr)
 
 
 # IP Address List validator.  Returns an IPSet or False
@@ -115,7 +109,7 @@ def validate_ip_list(ip_list):
         else:
             validated = validate_ip(item)
 
-        if not validated is None:
+        if validated is not None:
             if isinstance(validated, IPRange):
                 processed_list.append(validated)
             if isinstance(validated, IPAddress):
@@ -131,10 +125,7 @@ def validate_ip_list(ip_list):
 
 # Formats a list of CIDR Addressees, removing "/32"
 def format_cidr_list(cidr_list):
-    formattedList = []
-    for item in cidr_list:
-        formattedList.append(str(item).split('/32')[0])
-
+    formattedList = [str(item).split('/32')[0] for item in cidr_list]
     return ','.join(formattedList)
 
 
